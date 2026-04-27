@@ -1,49 +1,56 @@
 public class Main {
 
-    // Sample board pre-filled to test validation
-    static char[][] board = {
-            {'-', 'X', '-'},
-            {'-', '-', '-'},
-            {'-', '-', '-'}
-    };
+    static char[][] board = new char[3][3];
 
     /**
-     * Entry point of the program. Tests the validation logic
-     * using sample row and column values.
+     * Entry point of the program. Places a sample move
+     * and prints the updated cell value to verify.
      */
     public static void main(String[] args) {
 
-        // Test 1: valid empty cell
-        System.out.println("Test (row=0, col=0) → " + isValidMove(0, 0));   // true
+        // Initialise all cells with '-'
+        for (int r = 0; r < 3; r++)
+            for (int c = 0; c < 3; c++)
+                board[r][c] = '-';
 
-        // Test 2: occupied cell
-        System.out.println("Test (row=0, col=1) → " + isValidMove(0, 1));   // false (has 'X')
+        System.out.println("Before placing move:");
+        printBoard();
 
-        // Test 3: out of bounds
-        System.out.println("Test (row=3, col=0) → " + isValidMove(3, 0));   // false
+        // Place 'X' at row=0, col=0
+        placeMove(0, 0, 'X');
+        // Place 'O' at row=1, col=1
+        placeMove(1, 1, 'O');
+        // Place 'X' at row=2, col=2
+        placeMove(2, 2, 'X');
 
-        // Test 4: negative index
-        System.out.println("Test (row=-1,col=0) → " + isValidMove(-1, 0));  // false
+        System.out.println("After placing moves:");
+        printBoard();
     }
 
     /**
-     * Checks if the given row and column are within bounds (0–2)
-     * and if the target cell is empty ('-').
-     * Input  : Row, Column
-     * Output : true if valid, false otherwise
+     * Updates the board by placing the given symbol at
+     * the specified row and column.
+     * Input  : Row, Column, Symbol
+     * Hint   : Assume the move is already validated (UC5).
      */
-    static boolean isValidMove(int row, int col) {
-        // Boundary check
-        if (row < 0 || row > 2 || col < 0 || col > 2) {
-            System.out.println("  → Out of bounds!");
-            return false;
+    static void placeMove(int row, int col, char symbol) {
+        board[row][col] = symbol;
+        System.out.println("Placed '" + symbol + "' at Row=" + row + ", Col=" + col);
+    }
+
+    /**
+     * Helper method to print the current state of the board.
+     */
+    static void printBoard() {
+        System.out.println("-------------");
+        for (int row = 0; row < 3; row++) {
+            System.out.print("| ");
+            for (int col = 0; col < 3; col++) {
+                System.out.print(board[row][col] + " | ");
+            }
+            System.out.println();
+            System.out.println();
+            System.out.println("-------------");
         }
-        // Cell occupancy check
-        if (board[row][col] != '-') {
-            System.out.println("  → Cell already occupied!");
-            return false;
-        }
-        System.out.println("  → Valid move!");
-        return true;
     }
 }
