@@ -1,38 +1,39 @@
-import java.util.Scanner;
-
-/**
- * UC3: Accept User Slot Input (1–9)
- * -----------------------------------
- * Goal   : Allow the user to enter a slot number between 1 and 9.
- * Actor  : Human Player
- * Flow   : User enters slot number → program reads input → control returns to game logic.
- *
- * Key Concepts:
- *   - User Input Handling
- *   - Method Creation
- *   - Separation of Concerns
- */
 public class Main {
 
     /**
-     * Entry point of the program. Reads slot input and prints it back
-     * to verify correct user input handling.
+     * Entry point of the program. Demonstrates slot-to-index conversion
+     * using a sample slot value.
      */
     public static void main(String[] args) {
-        int slot = getUserSlot();
-        System.out.println("Slot entered: " + slot);
+        int slot = 7;   // sample slot to test
+        System.out.println("Slot   : " + slot);
+        System.out.println("Row    : " + getRowFromSlot(slot));
+        System.out.println("Column : " + getColFromSlot(slot));
+
+        // Test all slots 1–9
+        System.out.println("\n--- Full Mapping Table ---");
+        System.out.println("Slot | Row | Col");
+        System.out.println("-----------------");
+        for (int s = 1; s <= 9; s++) {
+            System.out.println("  " + s + "  |  " + getRowFromSlot(s) + "  |  " + getColFromSlot(s));
+        }
     }
 
     /**
-     * Reads an integer slot value from the user.
-     * Input  : Scanner object (console)
-     * Output : Slot number (1–9)
-     * Hint   : Validation will be added in later use cases (UC5).
+     * Converts slot number into row index using zero-based indexing.
+     * Input  : Slot number (1–9)
+     * Output : Row index (0–2)
      */
-    static int getUserSlot() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your slot number (1-9): ");
-        int slot = scanner.nextInt();
-        return slot;
+    static int getRowFromSlot(int slot) {
+        return (slot - 1) / 3;
+    }
+
+    /**
+     * Converts slot number into column index using modulo operation.
+     * Input  : Slot number (1–9)
+     * Output : Column index (0–2)
+     */
+    static int getColFromSlot(int slot) {
+        return (slot - 1) % 3;
     }
 }
