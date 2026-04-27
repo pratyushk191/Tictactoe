@@ -1,39 +1,49 @@
 public class Main {
 
+    // Sample board pre-filled to test validation
+    static char[][] board = {
+            {'-', 'X', '-'},
+            {'-', '-', '-'},
+            {'-', '-', '-'}
+    };
+
     /**
-     * Entry point of the program. Demonstrates slot-to-index conversion
-     * using a sample slot value.
+     * Entry point of the program. Tests the validation logic
+     * using sample row and column values.
      */
     public static void main(String[] args) {
-        int slot = 7;   // sample slot to test
-        System.out.println("Slot   : " + slot);
-        System.out.println("Row    : " + getRowFromSlot(slot));
-        System.out.println("Column : " + getColFromSlot(slot));
 
-        // Test all slots 1–9
-        System.out.println("\n--- Full Mapping Table ---");
-        System.out.println("Slot | Row | Col");
-        System.out.println("-----------------");
-        for (int s = 1; s <= 9; s++) {
-            System.out.println("  " + s + "  |  " + getRowFromSlot(s) + "  |  " + getColFromSlot(s));
+        // Test 1: valid empty cell
+        System.out.println("Test (row=0, col=0) → " + isValidMove(0, 0));   // true
+
+        // Test 2: occupied cell
+        System.out.println("Test (row=0, col=1) → " + isValidMove(0, 1));   // false (has 'X')
+
+        // Test 3: out of bounds
+        System.out.println("Test (row=3, col=0) → " + isValidMove(3, 0));   // false
+
+        // Test 4: negative index
+        System.out.println("Test (row=-1,col=0) → " + isValidMove(-1, 0));  // false
+    }
+
+    /**
+     * Checks if the given row and column are within bounds (0–2)
+     * and if the target cell is empty ('-').
+     * Input  : Row, Column
+     * Output : true if valid, false otherwise
+     */
+    static boolean isValidMove(int row, int col) {
+        // Boundary check
+        if (row < 0 || row > 2 || col < 0 || col > 2) {
+            System.out.println("  → Out of bounds!");
+            return false;
         }
-    }
-
-    /**
-     * Converts slot number into row index using zero-based indexing.
-     * Input  : Slot number (1–9)
-     * Output : Row index (0–2)
-     */
-    static int getRowFromSlot(int slot) {
-        return (slot - 1) / 3;
-    }
-
-    /**
-     * Converts slot number into column index using modulo operation.
-     * Input  : Slot number (1–9)
-     * Output : Column index (0–2)
-     */
-    static int getColFromSlot(int slot) {
-        return (slot - 1) % 3;
+        // Cell occupancy check
+        if (board[row][col] != '-') {
+            System.out.println("  → Cell already occupied!");
+            return false;
+        }
+        System.out.println("  → Valid move!");
+        return true;
     }
 }
