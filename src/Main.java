@@ -1,138 +1,109 @@
-import java.util.Random;
-import java.util.Scanner;
-
 /**
- * UC8: Continuous Turn-Based Game Loop
- * --------------------------------------
- * Goal   : Continue gameplay until a win or draw is detected.
+ * UC9: Check Winning Condition
+ * -----------------------------
+ * Goal   : Detect if a player has won the game.
  * Actor  : Game System
- * Flow   : Turn starts → player move → check win/draw → switch turn → repeat.
+ * Flow   : After each move → rows, columns, diagonals checked.
  *
  * Key Concepts:
- *   - While Loop
- *   - Game State Flags
- *   - Turn Switching
+ *   - Pattern Matching
+ *   - Logical Conditions
+ *   - Loop-Based Checks
  *
- * Key Requirements:
- *   - Alternate turns between human and computer
- *   - Stop the loop when win or draw is detected
- *
- * Note: Win (UC9) and Draw (UC10) checks are stubbed here with
- *       placeholder methods so UC8 can be demonstrated independently.
- *       Replace the stubs with full implementations when integrating.
+ * Winning Patterns:
+ *   3 rows  (0,0–0,2) | (1,0–1,2) | (2,0–2,2)
+ *   3 cols  (0,0–2,0) | (0,1–2,1) | (0,2–2,2)
+ *   2 diags (0,0–2,2) | (0,2–2,0)
  */
 public class Main {
 
     static char[][] board = new char[3][3];
 
-    static boolean isHumanTurn = true;   // will be set by UC2 toss
-    static boolean gameOver    = false;
-
-    static char humanSymbol    = 'X';
-    static char computerSymbol = 'O';
-
-    static Scanner scanner = new Scanner(System.in);
-    static Random  random  = new Random();
-
     /**
-     * Entry point of the program. Demonstrates the structure
-     * of a continuous game loop.
+     * Entry point of the program. Tests the win-check logic
+     * with a pre-filled board where 'X' wins via the top row.
      */
     public static void main(String[] args) {
 
-        initializeBoard();   // UC1
-        printBoard();        // UC1
+        // Set up a board where X wins via row 0
+        board[0][0] = 'X'; board[0][1] = 'X'; board[0][2] = 'X';
+        board[1][0] = 'O'; board[1][1] = 'O'; board[1][2] = '-';
+        board[2][0] = '-'; board[2][1] = '-'; board[2][2] = '-';
 
-        // UC8 – game loop
-        while (!gameOver) {
+        System.out.println("Current Board:");
+        printBoard();
 
-            if (isHumanTurn) {
-                System.out.println("=== YOUR TURN ('" + humanSymbol + "') ===");
-                humanTurn();
-            } else {
-                System.out.println("=== COMPUTER'S TURN ('" + computerSymbol + "') ===");
-                computerTurn();
+        System.out.println("Has 'X' won? → " + hasWon('X'));   // true
+        System.out.println("Has 'O' won? → " + hasWon('O'));   // false
+
+        // Set up a board where O wins via column 1
+        board[0][0] = 'X'; board[0][1] = 'O'; board[0][2] = 'X';
+        board[1][0] = '-'; board[1][1] = 'O'; board[1][2] = '-';
+        board[2][0] = 'X'; board[2][1] = 'O'; board[2][2] = '-';
+
+        System.out.println("\nUpdated Board:");
+        printBoard();
+        System.out.println("Has 'O' won? → " + hasWon('O'));   // true
+
+        // Diagonal win test
+        board[0][0] = 'X'; board[0][1] = 'O'; board[0][2] = 'O';
+        board[1][0] = 'O'; board[1][1] = 'X'; board[1][2] = '-';
+        board[2][0] = '-'; board[2][1] = 'O'; board[2][2] = 'X';
+
+        System.out.println("\nDiagonal win Board:");
+        printBoard();
+        System.out.println("Has 'X' won (diagonal)? → " + hasWon('X'));   // true
+    }
+
+    /**
+     * Checks all possible winning patterns for the given symbol.
+     * Input  : Player symbol ('X' or 'O')
+     * Output : true if win detected, false otherwise
+     */
+    static boolean hasWon(char symbol) {
+
+        // Check all 3 rows
+        for (int r = 0; r < 3; r++) {
+            if (board[r][0] == symbol &&
+                    board[r][1] == symbol &&
+                    board[r][2] == symbol) {
+                System.out.println("  → Win detected in Row " + r);
+                return true;
             }
+        }
 
-            printBoard();
-
-            // Determine whose symbol was just placed
-            char currentSymbol = isHumanTurn ? humanSymbol : computerSymbol;
-
-            // UC9 – check win (stub: replace with full hasWon() from UC9)
-            if (hasWon(currentSymbol)) {
-                if (isHumanTurn) {
-                    System.out.println("You win! Congratulations!");
-                } else {
-                    System.out.println("Computer wins! Better luck next time.");
-                }
-                gameOver = true;
-
-                // UC10 – check draw (stub: replace with full isDraw() from UC10)
-            } else if (isDraw()) {
-                System.out.println("It's a draw!");
-                gameOver = true;
-
-            } else {
-                // Switch turn
-                isHumanTurn = !isHumanTurn;
+        // Check all 3 columns
+        for (int c = 0; c < 3; c++) {
+            if (board[0][c] == symbol &&
+                    board[1][c] == symbol &&
+                    board[2][c] == symbol) {
+                System.out.println("  → Win detected in Column " + c);
+                return true;
             }
         }
 
-        System.out.println("Game over. Thanks for playing!");
-        scanner.close();
-    }
-
-    // -------------------------------------------------------
-    // Human turn: read slot, convert, validate, place
-    // -------------------------------------------------------
-    static void humanTurn() {
-        int row, col;
-        while (true) {
-            System.out.print("Enter slot (1-9): ");
-            int slot = scanner.nextInt();
-
-            if (slot < 1 || slot > 9) {
-                System.out.println("Please enter a number between 1 and 9.");
-                continue;
-            }
-
-            row = (slot - 1) / 3;   // UC4
-            col = (slot - 1) % 3;   // UC4
-
-            if (isValidMove(row, col)) {   // UC5
-                board[row][col] = humanSymbol;  // UC6
-                break;
-            } else {
-                System.out.println("Cell occupied or invalid. Try again.");
-            }
+        // Check main diagonal (top-left → bottom-right)
+        if (board[0][0] == symbol &&
+                board[1][1] == symbol &&
+                board[2][2] == symbol) {
+            System.out.println("  → Win detected in Main Diagonal");
+            return true;
         }
+
+        // Check anti-diagonal (top-right → bottom-left)
+        if (board[0][2] == symbol &&
+                board[1][1] == symbol &&
+                board[2][0] == symbol) {
+            System.out.println("  → Win detected in Anti-Diagonal");
+            return true;
+        }
+
+        return false;
     }
 
     // -------------------------------------------------------
-    // Computer turn: random valid slot (UC7)
+    // Helper: print board
     // -------------------------------------------------------
-    static void computerTurn() {
-        int row, col;
-        do {
-            int slot = random.nextInt(9) + 1;
-            row = (slot - 1) / 3;
-            col = (slot - 1) % 3;
-        } while (!isValidMove(row, col));
-
-        board[row][col] = computerSymbol;
-        System.out.println("Computer placed '" + computerSymbol + "'.");
-    }
-
-    // -------------------------------------------------------
-    // UC1 helpers
-    // -------------------------------------------------------
-    static void initializeBoard() {
-        for (int r = 0; r < 3; r++)
-            for (int c = 0; c < 3; c++)
-                board[r][c] = '-';
-    }
-
     static void printBoard() {
         System.out.println("-------------");
         for (int row = 0; row < 3; row++) {
@@ -142,35 +113,5 @@ public class Main {
             System.out.println();
             System.out.println("-------------");
         }
-    }
-
-    // -------------------------------------------------------
-    // UC5 helper
-    // -------------------------------------------------------
-    static boolean isValidMove(int row, int col) {
-        return (row >= 0 && row <= 2 && col >= 0 && col <= 2 && board[row][col] == '-');
-    }
-
-    // -------------------------------------------------------
-    // UC9 stub – win check (full version in UC9_CheckWin.java)
-    // -------------------------------------------------------
-    static boolean hasWon(char symbol) {
-        for (int i = 0; i < 3; i++) {
-            if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) return true;
-            if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) return true;
-        }
-        if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) return true;
-        if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) return true;
-        return false;
-    }
-
-    // -------------------------------------------------------
-    // UC10 stub – draw check (full version in UC10_DrawCondition.java)
-    // -------------------------------------------------------
-    static boolean isDraw() {
-        for (int r = 0; r < 3; r++)
-            for (int c = 0; c < 3; c++)
-                if (board[r][c] == '-') return false;
-        return true;
     }
 }
